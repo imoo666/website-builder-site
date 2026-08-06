@@ -12,9 +12,9 @@
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
     "lint": "oxlint",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run",
     "preview": "vite preview",
-    "ci:build": "pnpm lint && pnpm typecheck && vite build && node scripts/write-version.mjs",
+    "ci:build": "node scripts/ci-build.mjs",
     "deploy": "wrangler deploy"
   },
   "dependencies": {

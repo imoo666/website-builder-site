@@ -4,8 +4,8 @@
 
 AI changes are limited to:
 
-- `src/**`
-- `public/**`
+- `src/site/**`
+- `public/generated/**`
 
 ## Read-Only Files
 
@@ -13,6 +13,8 @@ AI changes are limited to:
 - `pnpm-lock.yaml`
 - `scripts/**`
 - `config/**`
+- `src/main.tsx`
+- `src/platform/**`
 - `wrangler.jsonc`
 - Vite, TypeScript, lint, and test configuration
 
@@ -20,6 +22,7 @@ AI changes are limited to:
 
 ```bash
 pnpm lint
+pnpm test
 pnpm typecheck
 pnpm build
 ```
