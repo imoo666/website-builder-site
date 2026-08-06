@@ -33,7 +33,7 @@ Root directory: /
 
 The Worker name is defined in `wrangler.jsonc`. Change it before the first deployment if the default name is already in use.
 
-The callback configuration is committed in `wrangler.jsonc`, so Workers Builds
+The callback configuration is committed in `config/build-callback.json`, so Workers Builds
 receives it without a separate dashboard step:
 
 ```text

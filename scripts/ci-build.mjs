@@ -1,10 +1,10 @@
 import { createHmac, randomUUID } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
 
+import { loadBuildCallbackConfig } from './build-callback-config.mjs'
 import { readBuildCommit } from './build-metadata.mjs'
 
-const callbackUrl = process.env.BUILD_CALLBACK_URL?.trim()
-const callbackSecret = process.env.BUILD_CALLBACK_SECRET?.trim()
+const { url: callbackUrl, secret: callbackSecret } = await loadBuildCallbackConfig()
 const commit = readBuildCommit()
 const buildId = process.env.WORKERS_CI_BUILD_UUID?.trim() || randomUUID()
 const steps = [
