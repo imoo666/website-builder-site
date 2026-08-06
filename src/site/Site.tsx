@@ -99,7 +99,7 @@ export default function Site() {
     <main className="snake-page">
       <header>
         <p className="eyebrow">Pocket arcade</p>
-        <h1>Snake</h1>
+        <h1>贪吃蛇</h1>
         <p className="score" aria-live="polite">得分 {snake.length - 1}</p>
       </header>
 
