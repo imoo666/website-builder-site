@@ -3,6 +3,7 @@ import './App.css'
 
 const GRID_SIZE = 20
 const CELL_SIZE = 20
+type Position = { x: number; y: number }
 const INITIAL_SNAKE = [{ x: 10, y: 10 }]
 const DIRECTIONS = {
   ArrowUp: { x: 0, y: -1 },
@@ -50,8 +51,8 @@ function App() {
     })
   }
 
-  const generateFood = (snakeBody: { x: number; y: number }[]) => {
-    let newFood
+  const generateFood = (snakeBody: Position[]) => {
+    let newFood: Position
     while (true) {
       newFood = {
         x: Math.floor(Math.random() * GRID_SIZE),
@@ -67,9 +68,11 @@ function App() {
       const newDir = DIRECTIONS[e.key as keyof typeof DIRECTIONS]
       if (newDir) {
         // Prevent reverse
+        const neck = snake[1]
         if (
-          snake[0].x + newDir.x !== snake[1].x ||
-          snake[0].y + newDir.y !== snake[1].y
+          !neck ||
+          snake[0].x + newDir.x !== neck.x ||
+          snake[0].y + newDir.y !== neck.y
         ) {
           setDirection(newDir)
         }
