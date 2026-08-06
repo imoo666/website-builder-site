@@ -1,122 +1,132 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { useState, useEffect, useRef } from 'react'
 import './App.css'
 
+const GRID_SIZE = 20
+const CELL_SIZE = 20
+const INITIAL_SNAKE = [{ x: 10, y: 10 }]
+const DIRECTIONS = {
+  ArrowUp: { x: 0, y: -1 },
+  ArrowDown: { x: 0, y: 1 },
+  ArrowLeft: { x: -1, y: 0 },
+  ArrowRight: { x: 1, y: 0 },
+}
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [snake, setSnake] = useState(INITIAL_SNAKE)
+  const [food, setFood] = useState({ x: 5, y: 5 })
+  const [direction, setDirection] = useState(DIRECTIONS.ArrowRight)
+  const [gameOver, setGameOver] = useState(false)
+  const intervalRef = useRef<number | null>(null)
+
+  const moveSnake = () => {
+    setSnake((prev) => {
+      const newHead = {
+        x: prev[0].x + direction.x,
+        y: prev[0].y + direction.y,
+      }
+      // Check wall collision
+      if (
+        newHead.x < 0 ||
+        newHead.x >= GRID_SIZE ||
+        newHead.y < 0 ||
+        newHead.y >= GRID_SIZE
+      ) {
+        setGameOver(true)
+        return prev
+      }
+      // Check self collision
+      if (prev.some((p) => p.x === newHead.x && p.y === newHead.y)) {
+        setGameOver(true)
+        return prev
+      }
+      const newSnake = [newHead, ...prev]
+      // Check food
+      if (newHead.x === food.x && newHead.y === food.y) {
+        setFood(generateFood(newSnake))
+      } else {
+        newSnake.pop()
+      }
+      return newSnake
+    })
+  }
+
+  const generateFood = (snakeBody: { x: number; y: number }[]) => {
+    let newFood
+    while (true) {
+      newFood = {
+        x: Math.floor(Math.random() * GRID_SIZE),
+        y: Math.floor(Math.random() * GRID_SIZE),
+      }
+      if (!snakeBody.some((p) => p.x === newFood.x && p.y === newFood.y)) break
+    }
+    return newFood
+  }
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      const newDir = DIRECTIONS[e.key as keyof typeof DIRECTIONS]
+      if (newDir) {
+        // Prevent reverse
+        if (
+          snake[0].x + newDir.x !== snake[1].x ||
+          snake[0].y + newDir.y !== snake[1].y
+        ) {
+          setDirection(newDir)
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [snake])
+
+  useEffect(() => {
+    if (gameOver) return
+    intervalRef.current = window.setInterval(moveSnake, 200)
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, [direction, gameOver])
 
   return (
-    <>
+    <div id="root">
       <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>AI 构建链路已连接</p>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
+        <h1>Snake Game</h1>
+        <p>AI 构建链路已连接</p>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${GRID_SIZE}, ${CELL_SIZE}px)`,
+            gap: '1px',
+            background: '#000',
+            width: `${GRID_SIZE * CELL_SIZE}px`,
+            height: `${GRID_SIZE * CELL_SIZE}px`,
+            margin: '0 auto',
+          }}
         >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+          {Array.from({ length: GRID_SIZE * GRID_SIZE }).map((_, idx) => {
+            const x = idx % GRID_SIZE
+            const y = Math.floor(idx / GRID_SIZE)
+            const isSnake = snake.some((p) => p.x === x && p.y === y)
+            const isFood = food.x === x && food.y === y
+            return (
+              <div
+                key={idx}
+                style={{
+                  width: CELL_SIZE,
+                  height: CELL_SIZE,
+                  background: isSnake
+                    ? '#aa3bff'
+                    : isFood
+                    ? '#ff0000'
+                    : '#fff',
+                }}
+              />
+            )
+          })}
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
+        {gameOver && <p>Game Over! Press R to restart.</p>}
       </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    </div>
   )
 }
 
