@@ -33,11 +33,12 @@ Root directory: /
 
 The Worker name is defined in `wrangler.jsonc`. Change it before the first deployment if the default name is already in use.
 
-Configure these encrypted Cloudflare Builds variables:
+The callback configuration is committed in `wrangler.jsonc`, so Workers Builds
+receives it without a separate dashboard step:
 
 ```text
 BUILD_CALLBACK_URL=https://ai-website-builder-api.2779468693.workers.dev/api/build-events
-BUILD_CALLBACK_SECRET=<same value as the API Worker secret>
+BUILD_CALLBACK_SECRET=<same value configured as the API Worker secret>
 ```
 
 The callback is advisory; the Builder still requires the deployed

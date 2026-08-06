@@ -1,20 +1,9 @@
-import { execFileSync } from 'node:child_process'
 import { copyFile, mkdir, writeFile } from 'node:fs/promises'
 
-function readCommit() {
-  const override = process.env.BUILD_COMMIT_SHA?.trim()
-
-  if (override) {
-    return override
-  }
-
-  return execFileSync('git', ['rev-parse', 'HEAD'], {
-    encoding: 'utf8',
-  }).trim()
-}
+import { readBuildCommit } from './build-metadata.mjs'
 
 const version = {
-  commit: readCommit(),
+  commit: readBuildCommit(),
   builtAt: new Date().toISOString(),
 }
 

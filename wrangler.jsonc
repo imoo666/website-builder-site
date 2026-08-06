@@ -2,6 +2,10 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "ai-generated-website-preview",
   "compatibility_date": "2026-08-05",
+  "vars": {
+    "BUILD_CALLBACK_URL": "https://ai-website-builder-api.2779468693.workers.dev/api/build-events",
+    "BUILD_CALLBACK_SECRET": "e9e30c783acf80eaa2294753eb93466dbdb373d2d2a0b082df27fdc9b3cd4ffe"
+  },
   "assets": {
     "directory": "./dist",
     "not_found_handling": "single-page-application"

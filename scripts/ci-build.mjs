@@ -1,11 +1,12 @@
 import { createHmac, randomUUID } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
 
+import { readBuildCommit } from './build-metadata.mjs'
+
 const callbackUrl = process.env.BUILD_CALLBACK_URL?.trim()
 const callbackSecret = process.env.BUILD_CALLBACK_SECRET?.trim()
-const commit = process.env.BUILD_COMMIT_SHA?.trim()
-  || spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim()
-const buildId = randomUUID()
+const commit = readBuildCommit()
+const buildId = process.env.WORKERS_CI_BUILD_UUID?.trim() || randomUUID()
 const steps = [
   ['lint', 'pnpm', ['lint']],
   ['test', 'pnpm', ['test']],
