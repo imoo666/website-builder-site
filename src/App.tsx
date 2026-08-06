@@ -94,7 +94,6 @@ function App() {
     <div id="root">
       <section id="center">
         <h1>Snake Game</h1>
-        <p>AI 构建链路已连接</p>
         <div
           style={{
             display: 'grid',
