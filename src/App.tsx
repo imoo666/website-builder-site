@@ -17,6 +17,7 @@ function App() {
         </div>
         <div>
           <h1>Get started</h1>
+          <p>AI 构建链路已连接</p>
           <p>
             Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
           </p>
