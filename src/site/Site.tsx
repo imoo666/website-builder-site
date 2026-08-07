@@ -66,6 +66,7 @@ function createPowerUp(snake: Position[], food: Position, walls: Position[], pow
 
 export default function Site() {
   const [snake, setSnake] = useState(INITIAL_SNAKE)
+  const [secondSnake, setSecondSnake] = useState<Position[]>([])
   const [food, setFood] = useState<Position>({ x: 5, y: 5 })
   const [walls, setWalls] = useState<Position[]>([])
   const [powerUps, setPowerUps] = useState<PowerUp[]>([])
@@ -87,6 +88,7 @@ export default function Site() {
 
   const restart = useCallback(() => {
     setSnake(INITIAL_SNAKE)
+    setSecondSnake([])
     setFood({ x: 5, y: 5 })
     setWalls([])
     setPowerUps([])
@@ -173,7 +175,8 @@ export default function Site() {
         const hitPowerUp = powerUps.find((p) => p.x === nextHead.x && p.y === nextHead.y)
         if (hitPowerUp) {
           if (hitPowerUp.type === 'clone') {
-            setSnake((s) => [...s, { ...nextHead }])
+            // 创建副蛇
+            setSecondSnake([...nextSnake])
             showMessage('分身道具')
           } else if (hitPowerUp.type === 'double') {
             setDoubleGrowth(true)
@@ -185,6 +188,14 @@ export default function Site() {
           nextSnake.push({ ...nextHead })
           setDoubleGrowth(false)
         }
+        // 更新副蛇位置，跟随主蛇
+        setSecondSnake((prev) => {
+          if (prev.length === 0) return prev
+          const newSec = [...prev]
+          newSec.pop()
+          newSec.unshift(current[0])
+          return newSec
+        })
         return nextSnake
       })
     }, speed)
@@ -207,11 +218,13 @@ export default function Site() {
             const x = index % GRID_SIZE
             const y = Math.floor(index / GRID_SIZE)
             const snakePart = snake.some((part) => part.x === x && part.y === y)
+            const secondSnakePart = secondSnake.some((part) => part.x === x && part.y === y)
             const foodCell = food.x === x && food.y === y
             const wallCell = walls.some((w) => w.x === x && w.y === y)
             const powerUpCell = powerUps.find((p) => p.x === x && p.y === y)
             let className = 'cell'
             if (snakePart) className += ' snake'
+            if (secondSnakePart) className += ' snake clone'
             if (foodCell) className += ' food'
             if (wallCell) className += ' wall'
             if (powerUpCell) className += ` powerup-${powerUpCell.type}`
