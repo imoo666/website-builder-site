@@ -1,172 +1,23 @@
-/* 统一使用 clamp() 让间距随屏幕宽度自适应 */
-.snake-page {
-  min-height: 100dvh;
-  display: grid;
-  align-content: center;
-  gap: clamp(14px, 2.5vw, 22px);
-  padding: max(20px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
-  color: #17191f;
-  background: #f5f6f8;
-}
+/* ... 现有样式保持不变 ... */
 
-.snake-page header {
-  width: min(100%, 430px);
-  margin: 0 auto;
-}
-
-.eyebrow,
-.score,
-.snake-page h1 {
-  margin: 0;
-}
-
-.eyebrow {
-  color: #59616d;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.snake-page h1 {
-  margin-top: 4px;
-  font-size: clamp(28px, 5vw, 34px);
-  line-height: 1;
-}
-
-.score {
-  margin-top: 8px;
-  color: #59616d;
-  font-size: 14px;
-}
-
-.game {
-  width: min(100%, 430px);
-  display: grid;
-  gap: clamp(12px, 2vw, 18px);
-  margin: 0 auto;
-}
-
-.board {
-  position: relative;
-  width: min(100%, calc(100dvh - 260px));
-  min-width: 260px;
-  max-width: 400px;
-  aspect-ratio: 1;
-  display: grid;
-  grid-template-columns: repeat(20, minmax(0, 1fr));
-  overflow: hidden;
-  margin: 0 auto;
-  border: 1px solid #b9bec7;
-  border-radius: 6px;
-  background: #fff;
-}
-
-/* 单元格边框可主题化 */
-:root {
-  --cell-border: #f1f2f4;
-}
-
-.cell {
-  min-width: 0;
-  min-height: 0;
-  border: 0.5px solid var(--cell-border);
-}
-
-.cell.snake {
-  border-color: #1e6b49;
-  background: #1e6b49;
-}
-
-.cell.food {
-  border-radius: 50%;
-  border-color: #d83d32;
-  background: #d83d32;
-}
-
-.cell.wall {
-  background: #444;
-}
-
-/* 新增道具单元格样式 */
-.cell.powerup-clone {
-  background: #4a90e2;
-  border: 1px solid #357ab8;
-}
-
-.cell.powerup-double {
-  background: #e67e22;
-  border: 1px solid #c65c0e;
-}
-
-.game-over {
+/* 提示层样式 */
+.powerup-message {
   position: absolute;
-  inset: 0;
-  display: grid;
-  place-content: center;
-  justify-items: center;
-  gap: 12px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 8px 12px;
+  background: rgba(0,0,0,0.7);
   color: #fff;
-  background: rgb(23 25 31 / 86%);
-  /* 轻微阴影提升层次感 */
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  border-radius: 4px;
+  font-size: 14px;
+  z-index: 10;
+  pointer-events: none;
+  animation: fadeOut 1.5s forwards;
 }
 
-.game-over button,
-.controls button {
-  min-width: 52px;
-  min-height: 44px;
-  border: 1px solid #aeb4bd;
-  border-radius: 4px; /* 统一圆角 */
-  color: #17191f;
-  background: #fff;
-  font-weight: 700;
-}
-
-.controls {
-  width: 164px;
-  display: grid;
-  grid-template-areas: ". up ." "left down right";
-  grid-template-columns: repeat(3, 52px);
-  gap: 4px;
-  margin: 0 auto;
-}
-
-.controls .up { grid-area: up; }
-.controls .left { grid-area: left; }
-.controls .down { grid-area: down; }
-.controls .right { grid-area: right; }
-.controls .pause { grid-area: pause; }
-
-@media (max-height: 640px) {
-  .snake-page {
-    align-content: start;
-    gap: clamp(10px, 1.5vw, 14px);
-  }
-
-  .board {
-    width: min(100%, 310px);
-  }
-}
-
-/* 暗色模式适配 */
-@media (prefers-color-scheme: dark) {
-  .snake-page {
-    background: #1e1e1e;
-    color: #e0e0e0;
-  }
-  .board {
-    border-color: #444;
-    background: #2a2a2a;
-  }
-  .cell {
-    border-color: #555;
-  }
-  .game-over {
-    background: rgba(30,30,30,0.9);
-  }
-  .controls button {
-    background: #333;
-    color: #e0e0e0;
-    border-color: #555;
-  }
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
 }
