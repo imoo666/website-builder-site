@@ -1,8 +1,9 @@
+/* 统一使用 clamp() 让间距随屏幕宽度自适应 */
 .snake-page {
   min-height: 100dvh;
   display: grid;
   align-content: center;
-  gap: 22px;
+  gap: clamp(14px, 2.5vw, 22px);
   padding: max(20px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
   color: #17191f;
   background: #f5f6f8;
@@ -28,7 +29,7 @@
 
 .snake-page h1 {
   margin-top: 4px;
-  font-size: 34px;
+  font-size: clamp(28px, 5vw, 34px);
   line-height: 1;
 }
 
@@ -41,7 +42,7 @@
 .game {
   width: min(100%, 430px);
   display: grid;
-  gap: 18px;
+  gap: clamp(12px, 2vw, 18px);
   margin: 0 auto;
 }
 
@@ -60,10 +61,15 @@
   background: #fff;
 }
 
+/* 单元格边框可主题化 */
+:root {
+  --cell-border: #f1f2f4;
+}
+
 .cell {
   min-width: 0;
   min-height: 0;
-  border: 0.5px solid #f1f2f4;
+  border: 0.5px solid var(--cell-border);
 }
 
 .cell.snake {
@@ -86,6 +92,8 @@
   gap: 12px;
   color: #fff;
   background: rgb(23 25 31 / 86%);
+  /* 轻微阴影提升层次感 */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .game-over button,
@@ -93,7 +101,7 @@
   min-width: 52px;
   min-height: 44px;
   border: 1px solid #aeb4bd;
-  border-radius: 6px;
+  border-radius: 4px; /* 统一圆角 */
   color: #17191f;
   background: #fff;
   font-weight: 700;
@@ -116,10 +124,33 @@
 @media (max-height: 640px) {
   .snake-page {
     align-content: start;
-    gap: 14px;
+    gap: clamp(10px, 1.5vw, 14px);
   }
 
   .board {
     width: min(100%, 310px);
+  }
+}
+
+/* 暗色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .snake-page {
+    background: #1e1e1e;
+    color: #e0e0e0;
+  }
+  .board {
+    border-color: #444;
+    background: #2a2a2a;
+  }
+  .cell {
+    border-color: #555;
+  }
+  .game-over {
+    background: rgba(30,30,30,0.9);
+  }
+  .controls button {
+    background: #333;
+    color: #e0e0e0;
+    border-color: #555;
   }
 }
