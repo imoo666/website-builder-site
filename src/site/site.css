@@ -76,12 +76,6 @@
   background: #1e6b49;
 }
 
-.cell.snake.clone {
-  /* 副蛇使用同色，保持视觉一致 */
-  border-color: #1e6b49;
-  background: #1e6b49;
-}
-
 .cell.food {
   border-radius: 50%;
   border-color: #d83d32;
