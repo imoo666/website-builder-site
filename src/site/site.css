@@ -83,6 +83,21 @@
   background: #d83d32;
 }
 
+.cell.wall {
+  background: #444;
+}
+
+/* 新增道具单元格样式 */
+.cell.powerup-clone {
+  background: #4a90e2;
+  border: 1px solid #357ab8;
+}
+
+.cell.powerup-double {
+  background: #e67e22;
+  border: 1px solid #c65c0e;
+}
+
 .game-over {
   position: absolute;
   inset: 0;
