@@ -1,8 +1,125 @@
-.hello-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  font-size: 2rem;
-  text-align: center;
+.snake-page {
+  min-height: 100dvh;
+  display: grid;
+  align-content: center;
+  gap: 22px;
+  padding: max(20px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
+  color: #17191f;
+  background: #f5f6f8;
+}
+
+.snake-page header {
+  width: min(100%, 430px);
+  margin: 0 auto;
+}
+
+.eyebrow,
+.score,
+.snake-page h1 {
+  margin: 0;
+}
+
+.eyebrow {
+  color: #59616d;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.snake-page h1 {
+  margin-top: 4px;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.score {
+  margin-top: 8px;
+  color: #59616d;
+  font-size: 14px;
+}
+
+.game {
+  width: min(100%, 430px);
+  display: grid;
+  gap: 18px;
+  margin: 0 auto;
+}
+
+.board {
+  position: relative;
+  width: min(100%, calc(100dvh - 260px));
+  min-width: 260px;
+  max-width: 400px;
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(20, minmax(0, 1fr));
+  overflow: hidden;
+  margin: 0 auto;
+  border: 1px solid #b9bec7;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.cell {
+  min-width: 0;
+  min-height: 0;
+  border: 0.5px solid #f1f2f4;
+}
+
+.cell.snake {
+  border-color: #1e6b49;
+  background: #1e6b49;
+}
+
+.cell.food {
+  border-radius: 50%;
+  border-color: #d83d32;
+  background: #d83d32;
+}
+
+.game-over {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  color: #fff;
+  background: rgb(23 25 31 / 86%);
+}
+
+.game-over button,
+.controls button {
+  min-width: 52px;
+  min-height: 44px;
+  border: 1px solid #aeb4bd;
+  border-radius: 6px;
+  color: #17191f;
+  background: #fff;
+  font-weight: 700;
+}
+
+.controls {
+  width: 164px;
+  display: grid;
+  grid-template-areas: ". up ." "left down right";
+  grid-template-columns: repeat(3, 52px);
+  gap: 4px;
+  margin: 0 auto;
+}
+
+.controls .up { grid-area: up; }
+.controls .left { grid-area: left; }
+.controls .down { grid-area: down; }
+.controls .right { grid-area: right; }
+
+@media (max-height: 640px) {
+  .snake-page {
+    align-content: start;
+    gap: 14px;
+  }
+
+  .board {
+    width: min(100%, 310px);
+  }
 }
