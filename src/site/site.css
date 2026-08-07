@@ -120,6 +120,7 @@
 .controls .left { grid-area: left; }
 .controls .down { grid-area: down; }
 .controls .right { grid-area: right; }
+.controls .pause { grid-area: pause; }
 
 @media (max-height: 640px) {
   .snake-page {

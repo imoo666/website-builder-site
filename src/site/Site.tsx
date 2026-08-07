@@ -3,6 +3,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import './site.css'
 
 const GRID_SIZE = 20
+const INITIAL_SPEED = 200 // ms
+const SPEED_DECREMENT = 10 // ms per length unit
+const MIN_SPEED = 80 // ms
+
 type Position = { x: number; y: number }
 type Direction = 'up' | 'down' | 'left' | 'right'
 
@@ -33,6 +37,7 @@ export default function Site() {
   const [food, setFood] = useState<Position>({ x: 5, y: 5 })
   const [direction, setDirection] = useState<Direction>('right')
   const [gameOver, setGameOver] = useState(false)
+  const [paused, setPaused] = useState(false)
   const directionRef = useRef(direction)
 
   const chooseDirection = useCallback((next: Direction) => {
@@ -47,6 +52,11 @@ export default function Site() {
     directionRef.current = 'right'
     setDirection('right')
     setGameOver(false)
+    setPaused(false)
+  }, [])
+
+  const togglePause = useCallback(() => {
+    setPaused((p) => !p)
   }, [])
 
   useEffect(() => {
@@ -63,14 +73,17 @@ export default function Site() {
         chooseDirection(next)
       } else if (event.key.toLowerCase() === 'r' && gameOver) {
         restart()
+      } else if (event.key.toLowerCase() === 'p') {
+        togglePause()
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [chooseDirection, gameOver, restart])
+  }, [chooseDirection, gameOver, restart, togglePause])
 
   useEffect(() => {
-    if (gameOver) return
+    if (gameOver || paused) return
+    const speed = Math.max(INITIAL_SPEED - (snake.length - 1) * SPEED_DECREMENT, MIN_SPEED)
     const timer = window.setInterval(() => {
       setSnake((current) => {
         const vector = VECTORS[directionRef.current]
@@ -91,9 +104,9 @@ export default function Site() {
         }
         return nextSnake
       })
-    }, 200)
+    }, speed)
     return () => window.clearInterval(timer)
-  }, [food, gameOver])
+  }, [food, gameOver, paused, snake.length])
 
   return (
     <main className="snake-page">
@@ -128,6 +141,7 @@ export default function Site() {
           <button className="left" type="button" aria-label="向左" onClick={() => chooseDirection('left')}>←</button>
           <button className="down" type="button" aria-label="向下" onClick={() => chooseDirection('down')}>↓</button>
           <button className="right" type="button" aria-label="向右" onClick={() => chooseDirection('right')}>→</button>
+          <button className="pause" type="button" aria-label={paused ? '继续' : '暂停'} onClick={togglePause}>{paused ? '▶' : '⏸'}</button>
         </div>
       </section>
     </main>
