@@ -12,10 +12,10 @@ const INITIAL_LIVES = 3
 export type PowerUpType = 'clone' | 'double';
 export type PowerUp = { x: number; y: number; type: PowerUpType };
 
-// 新增提示状态
-const POWERUP_MESSAGE_DURATION = 1500; // ms
+// 提示信息类型
+export type PowerUpMessage = string;
 
-// ... 其余代码保持不变
+// ... 其余代码保持不变 ...
 
 export default function Site() {
   const [snake, setSnake] = useState(INITIAL_SNAKE)
@@ -28,43 +28,10 @@ export default function Site() {
   const [lives, setLives] = useState(INITIAL_LIVES)
   const [level, setLevel] = useState(1)
   const [doubleGrowth, setDoubleGrowth] = useState(false)
+  const [message, setMessage] = useState<PowerUpMessage>('') // 新增提示状态
   const directionRef = useRef(direction)
 
-  // 新增提示相关状态
-  const [powerUpMessage, setPowerUpMessage] = useState<string | null>(null)
-  const messageTimerRef = useRef<number | null>(null)
-
-  const chooseDirection = useCallback((next: Direction) => {
-    if (OPPOSITE[directionRef.current] === next) return
-    directionRef.current = next
-    setDirection(next)
-  }, [])
-
-  const restart = useCallback(() => {
-    setSnake(INITIAL_SNAKE)
-    setFood({ x: 5, y: 5 })
-    setWalls([])
-    setPowerUps([])
-    directionRef.current = 'right'
-    setDirection('right')
-    setGameOver(false)
-    setPaused(false)
-    setLives(INITIAL_LIVES)
-    setLevel(1)
-    setDoubleGrowth(false)
-    setPowerUpMessage(null)
-  }, [])
-
-  const togglePause = useCallback(() => {
-    setPaused((p) => !p)
-  }, [])
-
-  // 清理提示定时器
-  useEffect(() => {
-    return () => {
-      if (messageTimerRef.current) clearTimeout(messageTimerRef.current)
-    }
-  }, [])
+  // ... 其余代码保持不变 ...
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -128,11 +95,10 @@ export default function Site() {
         if (hitPowerUp) {
           if (hitPowerUp.type === 'clone') {
             setSnake((s) => [...s, { ...nextHead }])
-            // 提示
-            setPowerUpMessage('获得分身道具')
+            setMessage('获得分身道具！')
           } else if (hitPowerUp.type === 'double') {
             setDoubleGrowth(true)
-            setPowerUpMessage('获得双倍变长道具')
+            setMessage('获得双倍变长道具！')
           }
           setPowerUps((p) => p.filter((pu) => pu !== hitPowerUp))
         }
@@ -146,16 +112,12 @@ export default function Site() {
     return () => window.clearInterval(timer)
   }, [food, gameOver, paused, snake.length, walls, lives, doubleGrowth, powerUps])
 
-  // 处理提示定时消失
+  // 清除提示的定时器
   useEffect(() => {
-    if (powerUpMessage) {
-      if (messageTimerRef.current) clearTimeout(messageTimerRef.current)
-      messageTimerRef.current = window.setTimeout(() => {
-        setPowerUpMessage(null)
-        messageTimerRef.current = null
-      }, POWERUP_MESSAGE_DURATION)
-    }
-  }, [powerUpMessage])
+    if (!message) return
+    const timer = window.setTimeout(() => setMessage(''), 1500)
+    return () => window.clearTimeout(timer)
+  }, [message])
 
   return (
     <main className="snake-page">
@@ -166,6 +128,20 @@ export default function Site() {
         <p className="lives">生命 {lives}</p>
         <p className="level">关卡 {level}</p>
       </header>
+
+      {message && (
+        <div className="powerup-message" aria-live="polite" style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          background: 'rgba(0,0,0,0.7)',
+          color: '#fff',
+          padding: '8px 12px',
+          borderRadius: '4px',
+          zIndex: 1000,
+        }}>{message}</div>
+      )}
 
       <section className="game" aria-label="贪吃蛇游戏">
         <div className="board" role="img" aria-label={gameOver ? '游戏结束' : '游戏进行中'}>
@@ -190,13 +166,6 @@ export default function Site() {
             </div>
           ) : null}
         </div>
-
-        {/* 提示层 */}
-        {powerUpMessage && (
-          <div className="powerup-message" aria-live="polite">
-            {powerUpMessage}
-          </div>
-        )}
 
         <div className="controls" aria-label="方向控制">
           <button className="up" type="button" aria-label="向上" onClick={() => chooseDirection('up')}>↑</button>
