@@ -13,9 +13,56 @@ export type PowerUpType = 'clone' | 'double';
 export type PowerUp = { x: number; y: number; type: PowerUpType };
 
 // 提示信息类型
-export type PowerUpMessage = string;
+export type PowerUpMessage = { text: string; id: number };
 
-// ... 其余代码保持不变 ...
+type Position = { x: number; y: number }
+type Direction = 'up' | 'down' | 'left' | 'right'
+
+const INITIAL_SNAKE: Position[] = [{ x: 10, y: 10 }]
+const VECTORS: Record<Direction, Position> = {
+  up: { x: 0, y: -1 },
+  down: { x: 0, y: 1 },
+  left: { x: -1, y: 0 },
+  right: { x: 1, y: 0 },
+}
+const OPPOSITE: Record<Direction, Direction> = {
+  up: 'down',
+  down: 'up',
+  left: 'right',
+  right: 'left',
+}
+
+function createFood(snake: Position[], walls: Position[]): Position {
+  const occupied = [...snake, ...walls]
+  const available = Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, index) => ({
+    x: index % GRID_SIZE,
+    y: Math.floor(index / GRID_SIZE),
+  })).filter((cell) => !occupied.some((p) => p.x === cell.x && p.y === cell.y))
+  return available[Math.floor(Math.random() * available.length)] ?? { x: 5, y: 5 }
+}
+
+function createWall(snake: Position[], food: Position, walls: Position[]): Position {
+  const occupied = [...snake, food, ...walls]
+  const available = Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, index) => ({
+    x: index % GRID_SIZE,
+    y: Math.floor(index / GRID_SIZE),
+  })).filter((cell) => !occupied.some((p) => p.x === cell.x && p.y === cell.y))
+  return available[Math.floor(Math.random() * available.length)] ?? { x: 0, y: 0 }
+}
+
+function createPowerUp(snake: Position[], food: Position, walls: Position[], powerUps: PowerUp[]): PowerUp {
+  const occupied = [...snake, food, ...walls, ...powerUps]
+  const available = Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, index) => ({
+    x: index % GRID_SIZE,
+    y: Math.floor(index / GRID_SIZE),
+  })).filter((cell) => !occupied.some((p) => p.x === cell.x && p.y === cell.y))
+  const type: PowerUpType = Math.random() < 0.5 ? 'clone' : 'double'
+  return {
+    x: available[Math.floor(Math.random() * available.length)]?.x ?? 0,
+    y: available[Math.floor(Math.random() * available.length)]?.y ?? 0,
+    type,
+  }
+}
 
 export default function Site() {
   const [snake, setSnake] = useState(INITIAL_SNAKE)
@@ -28,10 +75,42 @@ export default function Site() {
   const [lives, setLives] = useState(INITIAL_LIVES)
   const [level, setLevel] = useState(1)
   const [doubleGrowth, setDoubleGrowth] = useState(false)
-  const [message, setMessage] = useState<PowerUpMessage>('') // 新增提示状态
+  const [messages, setMessages] = useState<PowerUpMessage[]>([])
   const directionRef = useRef(direction)
+  const messageIdRef = useRef(0)
 
-  // ... 其余代码保持不变 ...
+  const chooseDirection = useCallback((next: Direction) => {
+    if (OPPOSITE[directionRef.current] === next) return
+    directionRef.current = next
+    setDirection(next)
+  }, [])
+
+  const restart = useCallback(() => {
+    setSnake(INITIAL_SNAKE)
+    setFood({ x: 5, y: 5 })
+    setWalls([])
+    setPowerUps([])
+    directionRef.current = 'right'
+    setDirection('right')
+    setGameOver(false)
+    setPaused(false)
+    setLives(INITIAL_LIVES)
+    setLevel(1)
+    setDoubleGrowth(false)
+    setMessages([])
+  }, [])
+
+  const togglePause = useCallback(() => {
+    setPaused((p) => !p)
+  }, [])
+
+  const showMessage = useCallback((text: string) => {
+    const id = ++messageIdRef.current
+    setMessages((prev) => [...prev, { text, id }])
+    setTimeout(() => {
+      setMessages((prev) => prev.filter((m) => m.id !== id))
+    }, 1500)
+  }, [])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -95,10 +174,10 @@ export default function Site() {
         if (hitPowerUp) {
           if (hitPowerUp.type === 'clone') {
             setSnake((s) => [...s, { ...nextHead }])
-            setMessage('获得分身道具！')
+            showMessage('分身道具')
           } else if (hitPowerUp.type === 'double') {
             setDoubleGrowth(true)
-            setMessage('获得双倍变长道具！')
+            showMessage('双倍变长道具')
           }
           setPowerUps((p) => p.filter((pu) => pu !== hitPowerUp))
         }
@@ -110,14 +189,7 @@ export default function Site() {
       })
     }, speed)
     return () => window.clearInterval(timer)
-  }, [food, gameOver, paused, snake.length, walls, lives, doubleGrowth, powerUps])
-
-  // 清除提示的定时器
-  useEffect(() => {
-    if (!message) return
-    const timer = window.setTimeout(() => setMessage(''), 1500)
-    return () => window.clearTimeout(timer)
-  }, [message])
+  }, [food, gameOver, paused, snake.length, walls, lives, doubleGrowth, powerUps, showMessage])
 
   return (
     <main className="snake-page">
@@ -128,20 +200,6 @@ export default function Site() {
         <p className="lives">生命 {lives}</p>
         <p className="level">关卡 {level}</p>
       </header>
-
-      {message && (
-        <div className="powerup-message" aria-live="polite" style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          background: 'rgba(0,0,0,0.7)',
-          color: '#fff',
-          padding: '8px 12px',
-          borderRadius: '4px',
-          zIndex: 1000,
-        }}>{message}</div>
-      )}
 
       <section className="game" aria-label="贪吃蛇游戏">
         <div className="board" role="img" aria-label={gameOver ? '游戏结束' : '游戏进行中'}>
@@ -165,6 +223,15 @@ export default function Site() {
               <button type="button" onClick={restart}>重新开始</button>
             </div>
           ) : null}
+        </div>
+
+        {/* 提示信息层 */}
+        <div className="powerup-messages" aria-live="polite" aria-atomic="true">
+          {messages.map((m) => (
+            <div key={m.id} className="message">
+              {m.text}
+            </div>
+          ))}
         </div>
 
         <div className="controls" aria-label="方向控制">
