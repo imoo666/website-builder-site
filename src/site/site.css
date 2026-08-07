@@ -1,10 +1,8 @@
-.game-over button,
-.controls button {
-  min-width: 52px;
-  min-height: 44px;
-  border: 1px solid #aeb4bd;
-  border-radius: 4px;
-  color: #17191f;
-  background: #fff;
-  font-weight: 700;
+.hello-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 2rem;
+  text-align: center;
 }
